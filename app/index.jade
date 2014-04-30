@@ -5,7 +5,14 @@ html(lang='en')
     title JS++
     link(rel='stylesheet', href='./css/app.css')
   body
-    h1 JS++
+    h1 Weather Map
+
+    input#input(type='text')
+    button#go Submit
+
+    #map
+
+    #graph
 
     script(src='./js/vendor/traceur.js')
     script(src='./js/vendor/experimental.js')
@@ -14,3 +21,8 @@ html(lang='en')
     script(src='./js/vendor/moment-2.6.0.js')
     script(src='./js/es5/main.js')
     script(src='./js/es6/main.js')
+    script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyArPvnhx4BUiKnrYG6cyNX-YZL21LruNAQ&sensor=true')
+
+    script(type='text/javascript', src='http://www.amcharts.com/lib/3/amcharts.js')
+    script(type='text/javascript', src='http://www.amcharts.com/lib/3/serial.js')
+    script(type='text/javascript', src='http://www.amcharts.com/lib/3/themes/none.js')
