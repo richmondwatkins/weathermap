@@ -7,11 +7,11 @@ $(document).ready(init);
 
 function init(){
 initMap(36,-87, 3);
-initGraph();
-$('#go').click(show);
+$('#go').click(add);
 }
 
 var map;
+var chart = {};
 
 function initMap(lat, lng, zoom){
 
@@ -24,12 +24,17 @@ function addMarker(lat, lng, name){
   new google.maps.Marker({map: map, position: latLng, title: name,}); //icon: './media/icon.jpg'
 }
 
+function add(){
+  let zip = $('#input').val().trim();
+  show(zip);
+  get(zip);
+}
 
-function show(){
-  let input = $('#input').val().trim();
+function show(zip){
+
   let geocoder = new google.maps.Geocoder();
 
-   geocoder.geocode({address: input}, (results, status)=>{
+   geocoder.geocode({address: zip}, (results, status)=>{
     let location = {};
     let name = results[0].formatted_address;
     let lat = results[0].geometry.location.lat();
@@ -38,27 +43,32 @@ function show(){
     let latLng = new google.maps.LatLng(lat, lgn);
     map.setCenter(latLng);
     map.setZoom(10);
-
-    get(lat, lgn);
   });
 }
 
-function get(lat, lgn) {
-    var url = 'http://api.wunderground.com/api/f7683fa5314899af/forecast10day/q/'+lat+','+lgn+'.json?callback=?';
-    $.getJSON(url, display);
+function get(zip) {
+    var url = 'http://api.wunderground.com/api/f7683fa5314899af/forecast10day/q/'+zip+'.json?callback=?';
+    $.getJSON(url, data=>{
+      $('#graphs').append(`<div class=graph data-zip=${zip}></div>`);
+    initGraph(zip);
+    data.forecast.simpleforecast.forecastday.forEach(m=>chart[zip].dataProvider.push({day:m.date.weekday, tempLow:m.low.fahrenheit, tempHigh:m.high.fahrenheit}));
+    chart[zip].validateData();
+  });
   }
 
 
 
-   function display(data){
-    data.forecast.simpleforecast.forecastday.forEach(m=>chart.dataProvider.push({day:m.date.weekday, tempLow:m.low.fahrenheit, tempHigh:m.high.fahrenheit}));
-    chart.validateData();
-  }
+  // function display(data){
+  // data.forecast.simpleforecast.forecastday.forEach(m=>chart.dataProvider.push({day:m.date.weekday, tempLow:m.low.fahrenheit, tempHigh:m.high.fahrenheit}));
+  // chart.validateData();
+  //
+  // }
 
 
- var chart;
-  function initGraph(){
-    chart = AmCharts.makeChart('graph', {
+
+  function initGraph(zip){
+    let graph = $(`.graph[data-zip=${zip}]`)[0];
+    chart[zip] = AmCharts.makeChart(graph, {
     'type': 'serial',
     'theme': 'chalk',
     'pathToImages': 'http://www.amcharts.com/lib/3/images/',
@@ -106,34 +116,5 @@ function get(lat, lgn) {
     });
   }
 
-// function weather(conditions){
-//   var tempLow = conditions.forecast.simpleforecast.forecastday.map(lowTemps).forEach(display);
-//   var  tempHigh = conditions.forecast.simpleforecast.forecastday.map(highTemps).forEach(display);
-//   var  day = conditions.forecast.simpleforecast.forecastday.map(days).forEach(display);
-//   console.log(conditions);
-//
-//   display(day,tempLow,tempHigh);
-// }
-
-// function display(day, tempLow, tempHigh){
-//   // console.log(day, tempLow, tempHigh);
-//   chart.dataProvider.push(day, tempLow, tempHigh);
-//   // debugger;
-//   chart.validateData();
-// }
-
-
-  //  function lowTemps(conditions) {
-  //    return conditions.low.fahrenheit;
-  //  }
-  //
-  //  function highTemps(conditions) {
-  //    return conditions.high.fahrenheit;
-  //  }
-  //
-  //
-  // function days(conditions) {
-  //   return conditions.date.weekday;
-  // }
 
 })();
